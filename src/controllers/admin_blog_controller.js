@@ -20,8 +20,8 @@ const getBlogById = async (req, res) => {
 
 const createBlog = async (req, res) => {
   try {
-    const { title, slug, content, cover_image_url } = req.body;
-    const blog = await adminBlogService.createBlog({ title, slug, content, cover_image_url });
+    const { title, slug, content, cover_image_url, images } = req.body;
+    const blog = await adminBlogService.createBlog({ title, slug, content, cover_image_url, images });
     res.status(201).json(blog);
   } catch (err) {
     res.status(400).json({ message: err.message });

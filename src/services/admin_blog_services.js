@@ -12,18 +12,6 @@ const getBlogById = async (id) => {
   return blog;
 };
 
-const createBlog = async ({ title, slug, content, cover_image_url }) => {
-  if (!title?.trim()) throw new Error('Title is required');
-  if (!slug?.trim()) throw new Error('Slug is required');
-  if (!SLUG_REGEX.test(slug)) throw new Error('Invalid slug format');
-  if (!content?.trim()) throw new Error('Content is required');
-
-  const existing = await blogRepository.findBySlug(slug);
-  if (existing) throw new Error('Slug already exists');
-
-  return blogRepository.create({ title, slug, content, cover_image_url });
-};
-
 const updateBlog = async (id, { title, slug, content, cover_image_url }) => {
   const blog = await blogRepository.findById(id);
   if (!blog) throw new Error('Blog not found');
@@ -61,6 +49,32 @@ const unpublishBlog = async (id) => {
   if (!blog) throw new Error('Blog not found');
   if (!blog.is_published) throw new Error('Blog is already unpublished');
   return blogRepository.update(id, { is_published: false });
+};
+
+const createBlog = async ({ title, slug, content, cover_image_url, images = [] }) => {
+  if (!title?.trim()) throw new Error('Title is required');
+  if (!slug?.trim()) throw new Error('Slug is required');
+  if (!SLUG_REGEX.test(slug)) throw new Error('Invalid slug format');
+  if (!content?.trim()) throw new Error('Content is required');
+  if (images.length > 6) throw new Error('Maximum 6 gallery images allowed');
+
+  const existing = await blogRepository.findBySlug(slug);
+  if (existing) throw new Error('Slug already exists');
+
+  const blog = await blogRepository.create({ title, slug, content, cover_image_url });
+
+  // blog_image records
+  if (images.length > 0) {
+    await prisma.blogImage.createMany({
+      data: images.map((url, index) => ({
+        blog_id: blog.id,
+        image_url: url,
+        sort_order: index + 1,
+      })),
+    });
+  }
+
+  return blogRepository.findById(blog.id);
 };
 
 module.exports = {
