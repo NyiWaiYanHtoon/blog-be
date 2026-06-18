@@ -30,8 +30,8 @@ const createBlog = async (req, res) => {
 
 const updateBlog = async (req, res) => {
   try {
-    const { title, slug, content, cover_image_url } = req.body;
-    const blog = await adminBlogService.updateBlog(req.params.id, { title, slug, content, cover_image_url });
+    const { title, slug, content, cover_image_url, images } = req.body;
+    const blog = await adminBlogService.updateBlog(req.params.id, { title, slug, content, cover_image_url, images });
     res.json(blog);
   } catch (err) {
     res.status(400).json({ message: err.message });

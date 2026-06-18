@@ -13,7 +13,7 @@ const getBlogById = async (id) => {
   return blog;
 };
 
-const updateBlog = async (id, { title, slug, content, cover_image_url }) => {
+const updateBlog = async (id, { title, slug, content, cover_image_url, images }) => {
   const blog = await blogRepository.findById(id);
   if (!blog) throw new Error('Blog not found');
 
@@ -23,13 +23,29 @@ const updateBlog = async (id, { title, slug, content, cover_image_url }) => {
     if (conflict) throw new Error('Slug already exists');
   }
 
-  return blogRepository.update(id, {
+  const updated = await blogRepository.update(id, {
     ...(title && { title }),
     ...(slug && { slug }),
     ...(content && { content }),
     ...(cover_image_url !== undefined && { cover_image_url }),
     updated_at: new Date(),
   });
+
+  // Replace gallery images if provided
+  if (images !== undefined) {
+    await prisma.blogImage.deleteMany({ where: { blog_id: id } });
+    if (images.length > 0) {
+      await prisma.blogImage.createMany({
+        data: images.map((url, index) => ({
+          blog_id: id,
+          image_url: url,
+          sort_order: index + 1,
+        })),
+      });
+    }
+  }
+
+  return updated;
 };
 
 const deleteBlog = async (id) => {
