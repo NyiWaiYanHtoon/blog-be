@@ -13,7 +13,12 @@ const uploadImage = async (file) => {
       upsert: false,
     });
 
-  if (error) throw new Error(`Upload failed: ${error.message}`);
+  if (error) {
+  console.log('Upload error:', error.message);
+  console.log('Original error:', error.originalError);
+  console.log('Original cause:', error.originalError?.cause);
+  throw new Error(`Upload failed: ${error.message}`);
+}
 
   const { data } = supabase.storage
     .from('blog-images')

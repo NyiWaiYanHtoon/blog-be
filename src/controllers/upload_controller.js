@@ -10,7 +10,7 @@ const uploadImage = async (req, res) => {
 
     if (req.file.size > 5 * 1024 * 1024)
       return res.status(400).json({ message: 'File size must be under 5MB' });
-
+    
     const result = await uploadService.uploadImage(req.file);
     res.status(201).json(result);
   } catch (err) {

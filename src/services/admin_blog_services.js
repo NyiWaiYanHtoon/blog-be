@@ -1,4 +1,5 @@
 const blogRepository = require('../repositories/blog_repo');
+const prisma = require('../config/database');
 
 const SLUG_REGEX = /^[a-z0-9-]+$/;
 
